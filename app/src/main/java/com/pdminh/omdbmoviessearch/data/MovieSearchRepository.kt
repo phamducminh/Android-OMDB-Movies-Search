@@ -12,8 +12,6 @@ class MovieSearchRepository(
         searchTitle: String,
         apiKey: String,
         pageIndex: Int
-    ): MovieSearchResult {
-
-        return apiRequest { service.getSearchResultData(searchTitle, apiKey, pageIndex) }
-    }
+    ): MovieSearchResult =
+        apiRequest { service.getSearchResultData(searchTitle, apiKey, pageIndex) }
 }

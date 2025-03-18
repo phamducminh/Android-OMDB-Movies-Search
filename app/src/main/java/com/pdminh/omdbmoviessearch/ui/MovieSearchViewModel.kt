@@ -57,31 +57,33 @@ class MovieSearchViewModel(
                 movieList.removeAt(movieList.size - 1)
         }
         viewModelScope.launch(Dispatchers.IO) {
-            if (_movieNameLiveData.value != null && _movieNameLiveData.value!!.isNotEmpty()) {
-                try {
-                    movieResponse = repository.getMovies(
-                        _movieNameLiveData.value!!,
-                        AppConstants.API_KEY,
-                        pageIndex
-                    )
-                    withContext(Dispatchers.Main) {
-                        if (movieResponse.response == AppConstants.SUCCESS) {
-                            movieList.addAll(movieResponse.search)
-                            totalMovies = movieResponse.totalResults.toInt()
-                            _moviesLiveData.postValue(State.success(movieList))
+            _movieNameLiveData.value?.let { movieName ->
+                if (movieName.isNotEmpty()) {
+                    try {
+                        movieResponse = repository.getMovies(
+                            _movieNameLiveData.value!!,
+                            AppConstants.API_KEY,
+                            pageIndex
+                        )
+                        withContext(Dispatchers.Main) {
+                            if (movieResponse.response == AppConstants.SUCCESS) {
+                                movieList.addAll(movieResponse.search)
+                                totalMovies = movieResponse.totalResults.toInt()
+                                _moviesLiveData.postValue(State.success(movieList))
+                                _loadMoreListLiveData.value = false
+                            } else
+                                _moviesLiveData.postValue(State.error(movieResponse.error))
+                        }
+                    } catch (e: ApiException) {
+                        withContext(Dispatchers.Main) {
+                            _moviesLiveData.postValue(State.error(e.message!!))
                             _loadMoreListLiveData.value = false
-                        } else
-                            _moviesLiveData.postValue(State.error(movieResponse.error))
-                    }
-                } catch (e: ApiException) {
-                    withContext(Dispatchers.Main) {
-                        _moviesLiveData.postValue(State.error(e.message!!))
-                        _loadMoreListLiveData.value = false
-                    }
-                } catch (e: NoInternetException) {
-                    withContext(Dispatchers.Main) {
-                        _moviesLiveData.postValue(State.error(e.message!!))
-                        _loadMoreListLiveData.value = false
+                        }
+                    } catch (e: NoInternetException) {
+                        withContext(Dispatchers.Main) {
+                            _moviesLiveData.postValue(State.error(e.message!!))
+                            _loadMoreListLiveData.value = false
+                        }
                     }
                 }
             }
@@ -106,7 +108,9 @@ class MovieSearchViewModel(
         firstVisibleItemPosition: Int
     ) {
         if (!_loadMoreListLiveData.value!! && (totalItemCount < totalMovies)) {
-            if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
+            if (visibleItemCount + firstVisibleItemPosition >= totalItemCount
+                && firstVisibleItemPosition >= 0
+            ) {
                 _loadMoreListLiveData.value = true
             }
         }

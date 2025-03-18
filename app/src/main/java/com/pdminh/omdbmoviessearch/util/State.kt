@@ -12,5 +12,4 @@ sealed class State<T> {
         fun <T> success(data: T) = Success(data)
         fun <T> error(message: String) = Error<T>(message)
     }
-
 }

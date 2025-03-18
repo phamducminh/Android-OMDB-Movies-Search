@@ -23,11 +23,13 @@ class MovieSearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_ITEM) {
-            val view: View = LayoutInflater.from(parent.context)
+            val view: View = LayoutInflater
+                .from(parent.context)
                 .inflate(R.layout.list_item_movie, parent, false)
             MovieViewHolder(view)
         } else {
-            val view: View = LayoutInflater.from(parent.context)
+            val view: View = LayoutInflater
+                .from(parent.context)
                 .inflate(R.layout.list_item_lazy_loading, parent, false)
             LoadingViewHolder(view)
         }

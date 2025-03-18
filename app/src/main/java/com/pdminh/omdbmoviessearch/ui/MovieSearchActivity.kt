@@ -55,8 +55,8 @@ class MovieSearchActivity : AppCompatActivity() {
 
     private fun setupViewModel() {
         viewModel = ViewModelProvider(
-            this,
-            Injection.provideViewModelFactory(context = this, owner = this)
+            owner = this,
+            factory = Injection.provideViewModelFactory(context = this, owner = this)
         )
             .get(MovieSearchViewModel::class.java)
     }
@@ -68,29 +68,32 @@ class MovieSearchActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(context)
             itemAnimator = DefaultItemAnimator()
             adapter = movieSearchAdapter
+
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
                     val layoutManager = recyclerView.layoutManager as LinearLayoutManager?
-                    val visibleItemCount = layoutManager!!.childCount
-                    val totalItemCount = layoutManager.itemCount
-                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-                    viewModel.checkForLoadMoreItems(
-                        visibleItemCount,
-                        totalItemCount,
-                        firstVisibleItemPosition
-                    )
+                    layoutManager?.let {
+                        val visibleItemCount = it.childCount
+                        val totalItemCount = it.itemCount
+                        val firstVisibleItemPosition = it.findFirstVisibleItemPosition()
+                        viewModel.checkForLoadMoreItems(
+                            visibleItemCount,
+                            totalItemCount,
+                            firstVisibleItemPosition
+                        )
+                    }
                 }
             })
         }
     }
 
     private fun initializeObserver() {
-        viewModel.movieNameLiveData.observe(this) {
-            Log.i("Info", "Movie Name = $it")
+        viewModel.movieNameLiveData.observe(this) { movieName ->
+            Log.i("Info", "Movie Name = $movieName")
         }
-        viewModel.loadMoreListLiveData.observe(this) {
-            if (it) {
+        viewModel.loadMoreListLiveData.observe(this) { loadMore ->
+            if (loadMore) {
                 movieSearchAdapter.setData(null)
                 Handler().postDelayed({
                     viewModel.loadMore()
