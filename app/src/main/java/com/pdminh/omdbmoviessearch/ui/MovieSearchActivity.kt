@@ -1,0 +1,174 @@
+package com.pdminh.omdbmoviessearch.ui
+
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.os.Bundle
+import android.os.Handler
+import android.util.Log
+import android.view.Menu
+import android.widget.SearchView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.pdminh.omdbmoviessearch.Injection
+import com.pdminh.omdbmoviessearch.R
+import com.pdminh.omdbmoviessearch.databinding.ActivityMovieSearchBinding
+import com.pdminh.omdbmoviessearch.util.NetworkUtils
+import com.pdminh.omdbmoviessearch.util.State
+import com.pdminh.omdbmoviessearch.util.dismissKeyboard
+import com.pdminh.omdbmoviessearch.util.getColorRes
+import com.pdminh.omdbmoviessearch.util.hide
+import com.pdminh.omdbmoviessearch.util.show
+import com.pdminh.omdbmoviessearch.util.showToast
+
+class MovieSearchActivity : AppCompatActivity() {
+
+    private lateinit var dataBind: ActivityMovieSearchBinding
+    private lateinit var viewModel: MovieSearchViewModel
+    private lateinit var movieSearchAdapter: MovieSearchAdapter
+    private lateinit var searchView: SearchView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        dataBind = DataBindingUtil.setContentView(this, R.layout.activity_movie_search)
+        setupViewModel()
+        setupUI()
+        initializeObserver()
+        handleNetworkChanges()
+        setupAPICall()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.search, menu)
+        searchView = menu.findItem(R.id.search).actionView as SearchView
+        searchView.apply {
+            queryHint = getString(R.string.search)
+            isSubmitButtonEnabled = true
+            onActionViewExpanded()
+        }
+        search(searchView)
+        return true
+    }
+
+    private fun setupViewModel() {
+        viewModel = ViewModelProvider(
+            this,
+            Injection.provideViewModelFactory(context = this, owner = this)
+        )
+            .get(MovieSearchViewModel::class.java)
+    }
+
+    private fun setupUI() {
+        movieSearchAdapter = MovieSearchAdapter()
+
+        dataBind.recyclerViewMovies.apply {
+            layoutManager = LinearLayoutManager(context)
+            itemAnimator = DefaultItemAnimator()
+            adapter = movieSearchAdapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager?
+                    val visibleItemCount = layoutManager!!.childCount
+                    val totalItemCount = layoutManager.itemCount
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                    viewModel.checkForLoadMoreItems(
+                        visibleItemCount,
+                        totalItemCount,
+                        firstVisibleItemPosition
+                    )
+                }
+            })
+        }
+    }
+
+    private fun initializeObserver() {
+        viewModel.movieNameLiveData.observe(this) {
+            Log.i("Info", "Movie Name = $it")
+        }
+        viewModel.loadMoreListLiveData.observe(this) {
+            if (it) {
+                movieSearchAdapter.setData(null)
+                Handler().postDelayed({
+                    viewModel.loadMore()
+                }, 2000)
+            }
+        }
+    }
+
+    private fun handleNetworkChanges() {
+        NetworkUtils.getNetworkLiveData(applicationContext).observe(this) { isConnected ->
+            if (!isConnected) {
+                dataBind.textViewNetworkStatus.text = getString(R.string.text_no_connectivity)
+                dataBind.networkStatusLayout.apply {
+                    show()
+                    setBackgroundColor(getColorRes(R.color.colorStatusNotConnected))
+                }
+            } else {
+                if (viewModel.moviesLiveData.value is State.Error || movieSearchAdapter.itemCount == 0) {
+                    viewModel.getMovies()
+                }
+                dataBind.textViewNetworkStatus.text = getString(R.string.text_connectivity)
+                dataBind.networkStatusLayout.apply {
+                    setBackgroundColor(getColorRes(R.color.colorStatusConnected))
+
+                    animate()
+                        .alpha(1f)
+                        .setStartDelay(ANIMATION_DURATION)
+                        .setDuration(ANIMATION_DURATION)
+                        .setListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                hide()
+                            }
+                        })
+                }
+            }
+        }
+    }
+
+    private fun setupAPICall() {
+        viewModel.moviesLiveData.observe(this) { state ->
+            when (state) {
+                is State.Loading -> {
+                    dataBind.recyclerViewMovies.hide()
+                    dataBind.linearLayoutSearch.hide()
+                    dataBind.progressBar.show()
+                }
+
+                is State.Success -> {
+                    dataBind.recyclerViewMovies.show()
+                    dataBind.linearLayoutSearch.hide()
+                    dataBind.progressBar.hide()
+                    movieSearchAdapter.setData(state.data)
+                }
+
+                is State.Error -> {
+                    dataBind.progressBar.hide()
+                    showToast(state.message)
+                }
+            }
+        }
+    }
+
+    private fun search(searchView: SearchView) {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                dismissKeyboard(searchView)
+                searchView.clearFocus()
+                viewModel.searchMovie(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                return false
+            }
+        })
+    }
+
+    companion object {
+        const val ANIMATION_DURATION = 1000.toLong()
+    }
+}

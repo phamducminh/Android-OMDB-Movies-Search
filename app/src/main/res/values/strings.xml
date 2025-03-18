@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">OMDB Movies Search</string>
+    <string name="text_no_connectivity">No Connection</string>
+    <string name="text_connectivity">Back Online</string>
+    <string name="welcome_do_a_search">Welcome! Do a search</string>
+    <string name="search">Search</string>
 </resources>
