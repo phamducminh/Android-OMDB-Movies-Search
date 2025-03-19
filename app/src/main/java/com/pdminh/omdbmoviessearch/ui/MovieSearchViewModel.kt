@@ -7,10 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.pdminh.omdbmoviessearch.data.MovieSearchRepository
 import com.pdminh.omdbmoviessearch.model.Movie
 import com.pdminh.omdbmoviessearch.model.MovieSearchResult
+import com.pdminh.omdbmoviessearch.model.UiState
 import com.pdminh.omdbmoviessearch.util.ApiException
 import com.pdminh.omdbmoviessearch.util.AppConstants
 import com.pdminh.omdbmoviessearch.util.NoInternetException
-import com.pdminh.omdbmoviessearch.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -31,10 +31,10 @@ class MovieSearchViewModel @Inject constructor(
     private var queryString = ""
     private var pageIndex = 0
     private var totalMovies = 0
-    private var movieList = ArrayList<Movie?>()
+    private var movieList = mutableListOf<Movie?>()
 
-    private val _moviesLiveData = MutableLiveData<UiState<ArrayList<Movie?>>>()
-    val moviesLiveData: LiveData<UiState<ArrayList<Movie?>>>
+    private val _moviesLiveData = MutableLiveData<UiState<List<Movie?>>>()
+    val moviesLiveData: LiveData<UiState<List<Movie?>>>
         get() = _moviesLiveData
 
     private val _loadMoreListLiveData = MutableLiveData<Boolean>()

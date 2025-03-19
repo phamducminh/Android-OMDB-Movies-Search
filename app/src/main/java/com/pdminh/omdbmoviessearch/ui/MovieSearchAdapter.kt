@@ -10,7 +10,7 @@ import javax.inject.Inject
  */
 class MovieSearchAdapter @Inject constructor() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var movies = ArrayList<Movie?>()
+    private var movies = mutableListOf<Movie?>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_ITEM) {
@@ -32,7 +32,7 @@ class MovieSearchAdapter @Inject constructor() : RecyclerView.Adapter<RecyclerVi
     override fun getItemViewType(position: Int): Int =
         if (movies[position] != null) VIEW_TYPE_ITEM else VIEW_TYPE_LOADING
 
-    fun setData(newMovies: ArrayList<Movie?>?) {
+    fun setData(newMovies: List<Movie?>?) {
         if (newMovies != null) {
             if (movies.isNotEmpty()) {
                 movies.removeAt(movies.size - 1)
