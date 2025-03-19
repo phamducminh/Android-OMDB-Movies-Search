@@ -2,6 +2,7 @@ package com.pdminh.omdbmoviessearch.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pdminh.omdbmoviessearch.data.MovieSearchRepository
@@ -26,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MovieSearchViewModel @Inject constructor(
     private val repository: MovieSearchRepository,
-    /*private val savedStateHandle: SavedStateHandle*/
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private var queryString = ""
@@ -46,6 +47,12 @@ class MovieSearchViewModel @Inject constructor(
 
     init {
         _loadMoreListLiveData.value = false
+        queryString = savedStateHandle[LAST_SEARCH_QUERY] ?: ""
+    }
+
+    override fun onCleared() {
+        savedStateHandle[LAST_SEARCH_QUERY] = queryString
+        super.onCleared()
     }
 
     fun getMovies() {
@@ -121,3 +128,5 @@ class MovieSearchViewModel @Inject constructor(
         }
     }
 }
+
+private const val LAST_SEARCH_QUERY: String = "last_search_query"
