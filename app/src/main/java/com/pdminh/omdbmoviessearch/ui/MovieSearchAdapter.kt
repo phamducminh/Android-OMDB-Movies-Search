@@ -40,7 +40,7 @@ class MovieSearchAdapter @Inject constructor() : RecyclerView.Adapter<RecyclerVi
             movies.clear()
             movies.addAll(newMovies)
         } else {
-            movies.add(newMovies)
+            movies.add(null)
         }
         notifyDataSetChanged()
     }

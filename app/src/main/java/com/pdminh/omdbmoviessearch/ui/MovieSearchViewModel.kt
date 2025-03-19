@@ -13,6 +13,7 @@ import com.pdminh.omdbmoviessearch.util.NoInternetException
 import com.pdminh.omdbmoviessearch.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -27,6 +28,7 @@ class MovieSearchViewModel @Inject constructor(
     /*private val savedStateHandle: SavedStateHandle*/
 ) : ViewModel() {
 
+    private var queryString = ""
     private var pageIndex = 0
     private var totalMovies = 0
     private var movieList = ArrayList<Movie?>()
@@ -34,10 +36,6 @@ class MovieSearchViewModel @Inject constructor(
     private val _moviesLiveData = MutableLiveData<UiState<ArrayList<Movie?>>>()
     val moviesLiveData: LiveData<UiState<ArrayList<Movie?>>>
         get() = _moviesLiveData
-
-    private val _queryLiveData = MutableLiveData<String>()
-    val queryLiveData: LiveData<String>
-        get() = _queryLiveData
 
     private val _loadMoreListLiveData = MutableLiveData<Boolean>()
     val loadMoreListLiveData: LiveData<Boolean>
@@ -47,7 +45,6 @@ class MovieSearchViewModel @Inject constructor(
 
     init {
         _loadMoreListLiveData.value = false
-        _queryLiveData.value = ""
     }
 
     fun getMovies() {
@@ -59,33 +56,31 @@ class MovieSearchViewModel @Inject constructor(
                 movieList.removeAt(movieList.size - 1)
         }
         viewModelScope.launch(Dispatchers.IO) {
-            _queryLiveData.value?.let { movieName ->
-                if (movieName.isNotEmpty()) {
-                    try {
-                        movieResponse = repository.getMovies(
-                            movieName,
-                            AppConstants.API_KEY,
-                            pageIndex
-                        )
-                        withContext(Dispatchers.Main) {
-                            if (movieResponse.response == AppConstants.SUCCESS) {
-                                movieList.addAll(movieResponse.search)
-                                totalMovies = movieResponse.totalResults.toInt()
-                                _moviesLiveData.postValue(UiState.success(movieList))
-                                _loadMoreListLiveData.value = false
-                            } else
-                                _moviesLiveData.postValue(UiState.error(movieResponse.error))
-                        }
-                    } catch (e: ApiException) {
-                        withContext(Dispatchers.Main) {
-                            _moviesLiveData.postValue(UiState.error(e.message!!))
+            if (queryString.isNotEmpty()) {
+                try {
+                    movieResponse = repository.getMovies(
+                        queryString,
+                        AppConstants.API_KEY,
+                        pageIndex
+                    )
+                    withContext(Dispatchers.Main) {
+                        if (movieResponse.response == AppConstants.SUCCESS) {
+                            movieList.addAll(movieResponse.search)
+                            totalMovies = movieResponse.totalResults.toInt()
+                            _moviesLiveData.postValue(UiState.success(movieList))
                             _loadMoreListLiveData.value = false
-                        }
-                    } catch (e: NoInternetException) {
-                        withContext(Dispatchers.Main) {
-                            _moviesLiveData.postValue(UiState.error(e.message!!))
-                            _loadMoreListLiveData.value = false
-                        }
+                        } else
+                            _moviesLiveData.postValue(UiState.error(movieResponse.error))
+                    }
+                } catch (e: ApiException) {
+                    withContext(Dispatchers.Main) {
+                        _moviesLiveData.postValue(UiState.error(e.message!!))
+                        _loadMoreListLiveData.value = false
+                    }
+                } catch (e: NoInternetException) {
+                    withContext(Dispatchers.Main) {
+                        _moviesLiveData.postValue(UiState.error(e.message!!))
+                        _loadMoreListLiveData.value = false
                     }
                 }
             }
@@ -93,15 +88,18 @@ class MovieSearchViewModel @Inject constructor(
     }
 
     fun searchMovie(query: String) {
-        _queryLiveData.value = query
+        queryString = query
         pageIndex = 1
         totalMovies = 0
         getMovies()
     }
 
-    fun loadMore() {
-        pageIndex++
-        getMovies()
+    fun loadMore(delay: Long = 0) {
+        viewModelScope.launch {
+            delay(delay)
+            pageIndex++
+            getMovies()
+        }
     }
 
     fun checkForLoadMoreItems(

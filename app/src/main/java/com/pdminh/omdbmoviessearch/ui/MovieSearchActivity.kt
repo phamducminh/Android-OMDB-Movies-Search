@@ -3,8 +3,6 @@ package com.pdminh.omdbmoviessearch.ui
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.Menu
 import android.widget.SearchView
 import androidx.activity.viewModels
@@ -14,8 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pdminh.omdbmoviessearch.R
 import com.pdminh.omdbmoviessearch.databinding.ActivityMovieSearchBinding
-import com.pdminh.omdbmoviessearch.util.NetworkUtils
 import com.pdminh.omdbmoviessearch.model.UiState
+import com.pdminh.omdbmoviessearch.util.NetworkUtils
 import com.pdminh.omdbmoviessearch.util.dismissKeyboard
 import com.pdminh.omdbmoviessearch.util.getColorRes
 import com.pdminh.omdbmoviessearch.util.hide
@@ -41,9 +39,8 @@ class MovieSearchActivity : AppCompatActivity() {
         setContentView(view)
 
         setupUI()
-        initializeObserver()
+        setupObserver()
         handleNetworkChanges()
-        setupAPICall()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -59,7 +56,7 @@ class MovieSearchActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        binding.recyclerViewMovies.apply {
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             itemAnimator = DefaultItemAnimator()
             adapter = movieSearchAdapter
@@ -72,6 +69,7 @@ class MovieSearchActivity : AppCompatActivity() {
                         val visibleItemCount = it.childCount
                         val totalItemCount = it.itemCount
                         val firstVisibleItemPosition = it.findFirstVisibleItemPosition()
+
                         viewModel.checkForLoadMoreItems(
                             visibleItemCount,
                             totalItemCount,
@@ -83,16 +81,32 @@ class MovieSearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeObserver() {
-        viewModel.queryLiveData.observe(this) { movieName ->
-            Log.i("Info", "Movie Name = $movieName")
-        }
+    private fun setupObserver() {
         viewModel.loadMoreListLiveData.observe(this) { loadMore ->
             if (loadMore) {
                 movieSearchAdapter.setData(null)
-                Handler().postDelayed({
-                    viewModel.loadMore()
-                }, 2000)
+                viewModel.loadMore()
+            }
+        }
+        viewModel.moviesLiveData.observe(this) { state ->
+            when (state) {
+                is UiState.Loading -> {
+                    binding.recyclerView.hide()
+                    binding.linearLayoutSearch.hide()
+                    binding.progressBar.show()
+                }
+
+                is UiState.Success -> {
+                    binding.recyclerView.show()
+                    binding.linearLayoutSearch.hide()
+                    binding.progressBar.hide()
+                    movieSearchAdapter.setData(state.data)
+                }
+
+                is UiState.Error -> {
+                    binding.progressBar.hide()
+                    showToast(state.message)
+                }
             }
         }
     }
@@ -122,30 +136,6 @@ class MovieSearchActivity : AppCompatActivity() {
                                 hide()
                             }
                         })
-                }
-            }
-        }
-    }
-
-    private fun setupAPICall() {
-        viewModel.moviesLiveData.observe(this) { state ->
-            when (state) {
-                is UiState.Loading -> {
-                    binding.recyclerViewMovies.hide()
-                    binding.linearLayoutSearch.hide()
-                    binding.progressBar.show()
-                }
-
-                is UiState.Success -> {
-                    binding.recyclerViewMovies.show()
-                    binding.linearLayoutSearch.hide()
-                    binding.progressBar.hide()
-                    movieSearchAdapter.setData(state.data)
-                }
-
-                is UiState.Error -> {
-                    binding.progressBar.hide()
-                    showToast(state.message)
                 }
             }
         }

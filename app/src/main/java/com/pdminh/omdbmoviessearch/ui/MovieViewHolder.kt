@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.pdminh.omdbmoviessearch.R
 import com.pdminh.omdbmoviessearch.model.Movie
 
@@ -26,12 +27,15 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         movie?.let {
             textTitle.text = it.title
             textYear.text = it.year
-            Glide.with(imagePoster.context).load(it.poster)
+            Glide.with(imagePoster.context)
+                .load(if (it.poster.isEmpty() || it.poster == "N/A") null else it.poster)
                 .centerCrop()
                 .thumbnail(0.5f)
-                .placeholder(R.drawable.ic_launcher_background)
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .apply(
+                    RequestOptions()
+                        .placeholder(R.drawable.ic_movie_placeholder)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                )
                 .into(imagePoster)
         }
     }
