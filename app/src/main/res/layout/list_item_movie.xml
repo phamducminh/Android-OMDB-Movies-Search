@@ -35,7 +35,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/text_title"
+                    android:id="@+id/title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Home alone"
@@ -44,11 +44,27 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/text_year"
+                    android:id="@+id/year"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="2025"
                     android:textColor="@color/md_theme_onSurface_highContrast" />
+
+                <Button
+                    android:id="@+id/button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_background"
+                    android:text="@string/click_me"
+                    android:textColor="@color/md_theme_onSurface_highContrast" />
+
+                <TextView
+                    android:id="@+id/label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Label"
+                    android:textColor="@color/md_theme_onSurface_highContrast"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
