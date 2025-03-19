@@ -73,6 +73,8 @@ dependencies {
     implementation libs.hilt.android
     kapt libs.hilt.android.compiler
 
+    debugImplementation libs.leakcanary.android
+
     testImplementation libs.junit
 
     androidTestImplementation libs.androidx.junit
