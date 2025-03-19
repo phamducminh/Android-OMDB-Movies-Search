@@ -100,7 +100,7 @@ class MovieSearchActivity : AppCompatActivity() {
                 viewModel.loadMore()
             }
         }
-        viewModel.moviesLiveData.observe(this) { state ->
+        viewModel.uiStateLiveData.observe(this) { state ->
             when (state) {
                 is UiState.Loading -> {
                     binding.recyclerView.hide()
@@ -112,7 +112,7 @@ class MovieSearchActivity : AppCompatActivity() {
                     binding.recyclerView.show()
                     binding.linearLayoutSearch.hide()
                     binding.progressBar.hide()
-                    movieSearchAdapter.setData(state.data.map { UiModel.MovieItem(it) })
+                    movieSearchAdapter.setData(state.data)
                 }
 
                 is UiState.Error -> {
@@ -135,7 +135,7 @@ class MovieSearchActivity : AppCompatActivity() {
                     setBackgroundColor(getColorRes(R.color.colorStatusNotConnected))
                 }
             } else {
-                if (viewModel.moviesLiveData.value is UiState.Error || movieSearchAdapter.itemCount == 0) {
+                if (viewModel.uiStateLiveData.value is UiState.Error || movieSearchAdapter.itemCount == 0) {
                     viewModel.getMovies()
                 }
                 binding.textViewNetworkStatus.text = getString(R.string.text_connectivity)

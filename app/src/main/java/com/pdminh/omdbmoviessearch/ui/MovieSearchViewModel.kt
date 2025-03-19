@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.pdminh.omdbmoviessearch.data.MovieSearchRepository
 import com.pdminh.omdbmoviessearch.model.Movie
 import com.pdminh.omdbmoviessearch.model.MovieSearchResult
+import com.pdminh.omdbmoviessearch.model.UiModel
 import com.pdminh.omdbmoviessearch.model.UiState
 import com.pdminh.omdbmoviessearch.util.ApiException
 import com.pdminh.omdbmoviessearch.util.AppConstants
@@ -31,11 +32,11 @@ class MovieSearchViewModel @Inject constructor(
     private var queryString = ""
     private var pageIndex = 0
     private var totalMovies = 0
-    private var movieList = mutableListOf<Movie?>()
+    private var movies = mutableListOf<Movie?>()
 
-    private val _moviesLiveData = MutableLiveData<UiState<List<Movie?>>>()
-    val moviesLiveData: LiveData<UiState<List<Movie?>>>
-        get() = _moviesLiveData
+    private val _uiStateLiveData = MutableLiveData<UiState<List<UiModel>>>()
+    val uiStateLiveData: LiveData<UiState<List<UiModel>>>
+        get() = _uiStateLiveData
 
     private val _loadMoreListLiveData = MutableLiveData<Boolean>()
     val loadMoreListLiveData: LiveData<Boolean>
@@ -49,11 +50,11 @@ class MovieSearchViewModel @Inject constructor(
 
     fun getMovies() {
         if (pageIndex == 1) {
-            movieList.clear()
-            _moviesLiveData.postValue(UiState.Loading)
+            movies.clear()
+            _uiStateLiveData.postValue(UiState.Loading)
         } else {
-            if (movieList.isNotEmpty() && movieList.last() == null)
-                movieList.removeAt(movieList.size - 1)
+            if (movies.isNotEmpty() && movies.last() == null)
+                movies.removeAt(movies.size - 1)
         }
         viewModelScope.launch(Dispatchers.IO) {
             if (queryString.isNotEmpty()) {
@@ -65,21 +66,25 @@ class MovieSearchViewModel @Inject constructor(
                     )
                     withContext(Dispatchers.Main) {
                         if (movieResponse.response == AppConstants.SUCCESS) {
-                            movieList.addAll(movieResponse.search)
+                            movies.addAll(movieResponse.search)
                             totalMovies = movieResponse.totalResults.toInt()
-                            _moviesLiveData.postValue(UiState.Success(movieList))
+                            _uiStateLiveData.postValue(UiState.Success(movies.map {
+                                UiModel.MovieItem(
+                                    it
+                                )
+                            }))
                             _loadMoreListLiveData.value = false
                         } else
-                            _moviesLiveData.postValue(UiState.Error(movieResponse.error))
+                            _uiStateLiveData.postValue(UiState.Error(movieResponse.error))
                     }
                 } catch (e: ApiException) {
                     withContext(Dispatchers.Main) {
-                        _moviesLiveData.postValue(UiState.Error(e.message!!))
+                        _uiStateLiveData.postValue(UiState.Error(e.message!!))
                         _loadMoreListLiveData.value = false
                     }
                 } catch (e: NoInternetException) {
                     withContext(Dispatchers.Main) {
-                        _moviesLiveData.postValue(UiState.Error(e.message!!))
+                        _uiStateLiveData.postValue(UiState.Error(e.message!!))
                         _loadMoreListLiveData.value = false
                     }
                 }
