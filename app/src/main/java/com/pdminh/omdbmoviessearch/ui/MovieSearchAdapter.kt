@@ -2,7 +2,8 @@ package com.pdminh.omdbmoviessearch.ui
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.pdminh.omdbmoviessearch.model.Movie
+import com.pdminh.omdbmoviessearch.R
+import com.pdminh.omdbmoviessearch.model.UiModel
 import com.pdminh.omdbmoviessearch.ui.viewholder.EmptyViewHolder
 import com.pdminh.omdbmoviessearch.ui.viewholder.LoadingViewHolder
 import com.pdminh.omdbmoviessearch.ui.viewholder.MovieViewHolder
@@ -13,14 +14,13 @@ import javax.inject.Inject
  */
 class MovieSearchAdapter @Inject constructor() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var movies = mutableListOf<Movie?>()
-    private var errMessage = ""
+    private var movies = mutableListOf<UiModel>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_ITEM -> MovieViewHolder.create(parent)
-            VIEW_TYPE_LOADING -> LoadingViewHolder.create(parent)
-            VIEW_TYPE_EMPTY -> EmptyViewHolder.create(parent)
+            R.layout.movie_view_item -> MovieViewHolder.create(parent)
+            R.layout.loading_view_item -> LoadingViewHolder.create(parent)
+            R.layout.empty_view_item -> EmptyViewHolder.create(parent)
             else -> throw IllegalArgumentException("Unknown view type")
         }
     }
@@ -28,41 +28,33 @@ class MovieSearchAdapter @Inject constructor() : RecyclerView.Adapter<RecyclerVi
     override fun getItemCount(): Int = movies.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (holder) {
-            is MovieViewHolder -> movies[position]?.let { holder.bind(it) }
-            is LoadingViewHolder -> holder.showLoadingView()
-            is EmptyViewHolder -> holder.showEmptyMessage(errMessage)
+        val uiModel = movies[position]
+        when (uiModel) {
+            is UiModel.MovieItem -> uiModel.movie?.let { (holder as MovieViewHolder).bind(it) }
+            is UiModel.LoadingItem -> (holder as LoadingViewHolder).bind()
+            is UiModel.EmptyItem -> (holder as EmptyViewHolder).bind(uiModel.errMessage)
         }
     }
 
-    override fun getItemViewType(position: Int): Int = when {
-        errMessage.isNotEmpty() -> VIEW_TYPE_EMPTY
-        movies[position] == null -> VIEW_TYPE_LOADING
-        else -> VIEW_TYPE_ITEM
+    override fun getItemViewType(position: Int): Int {
+        return when (movies[position]) {
+            is UiModel.MovieItem -> R.layout.movie_view_item
+            is UiModel.LoadingItem -> R.layout.loading_view_item
+            is UiModel.EmptyItem -> R.layout.empty_view_item
+        }
     }
 
-    fun setData(newMovies: List<Movie?>?, errorMessage: String = "") {
-        if (newMovies != null) {
+    fun setData(newMovies: List<UiModel>) {
+        if (newMovies.size == 1 && newMovies[0] is UiModel.LoadingItem) {
+            movies.add(newMovies[0])
+        } else {
             if (movies.isNotEmpty()) {
                 movies.removeAt(movies.size - 1)
             }
             movies.clear()
             movies.addAll(newMovies)
-        } else {
-            if (errorMessage.isNotEmpty()) {
-                movies.clear()
-            }
-            movies.add(null)
         }
 
-        errMessage = errorMessage
-
         notifyDataSetChanged()
-    }
-
-    companion object {
-        private const val VIEW_TYPE_ITEM = 0
-        private const val VIEW_TYPE_LOADING = 1
-        private const val VIEW_TYPE_EMPTY = 2
     }
 }

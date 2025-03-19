@@ -28,26 +28,24 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val label: TextView = itemView.findViewById(R.id.label)
 
     @SuppressLint("SetTextI18n")
-    fun bind(movie: Movie?) {
-        movie?.let {
-            title.text = it.title
-            year.text = it.year
-            Glide.with(imagePoster.context)
-                .load(if (it.poster.isEmpty() || it.poster == "N/A") null else it.poster)
-                .centerCrop()
-                .thumbnail(0.5f)
-                .apply(
-                    RequestOptions()
-                        .placeholder(R.drawable.ic_movie_placeholder)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                )
-                .into(imagePoster)
+    fun bind(movie: Movie) {
+        title.text = movie.title
+        year.text = movie.year
+        Glide.with(imagePoster.context)
+            .load(if (movie.poster.isEmpty() || movie.poster == "N/A") null else movie.poster)
+            .centerCrop()
+            .thumbnail(0.5f)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.ic_movie_placeholder)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+            )
+            .into(imagePoster)
 
-            button.setOnClickListener {
-                Log.d(TAG, "Click me button clicked")
-                // Show/hide label
-//                label.visibility = if (label.isGone) View.VISIBLE else View.GONE
-            }
+        button.setOnClickListener {
+            Log.d(TAG, "Click me button clicked")
+            // Show/hide label
+            // label.visibility = if (label.isGone) View.VISIBLE else View.GONE
         }
     }
 
@@ -55,7 +53,7 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun create(parent: ViewGroup): MovieViewHolder {
             val view = LayoutInflater
                 .from(parent.context)
-                .inflate(R.layout.list_item_movie, parent, false)
+                .inflate(R.layout.movie_view_item, parent, false)
             return MovieViewHolder(view)
         }
     }

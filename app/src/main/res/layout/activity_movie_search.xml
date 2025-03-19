@@ -33,7 +33,7 @@
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/network_status_layout"
-        tools:listitem="@layout/list_item_movie" />
+        tools:listitem="@layout/movie_view_item" />
 
     <ProgressBar
         android:id="@+id/progress_bar"

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pdminh.omdbmoviessearch.R
 import com.pdminh.omdbmoviessearch.databinding.ActivityMovieSearchBinding
+import com.pdminh.omdbmoviessearch.model.UiModel
 import com.pdminh.omdbmoviessearch.model.UiState
 import com.pdminh.omdbmoviessearch.util.NetworkUtils
 import com.pdminh.omdbmoviessearch.util.dismissKeyboard
@@ -95,7 +96,7 @@ class MovieSearchActivity : AppCompatActivity() {
     private fun setupObserver() {
         viewModel.loadMoreListLiveData.observe(this) { loadMore ->
             if (loadMore) {
-                movieSearchAdapter.setData(null)
+                movieSearchAdapter.setData(listOf(UiModel.LoadingItem))
                 viewModel.loadMore()
             }
         }
@@ -111,14 +112,14 @@ class MovieSearchActivity : AppCompatActivity() {
                     binding.recyclerView.show()
                     binding.linearLayoutSearch.hide()
                     binding.progressBar.hide()
-                    movieSearchAdapter.setData(state.data)
+                    movieSearchAdapter.setData(state.data.map { UiModel.MovieItem(it) })
                 }
 
                 is UiState.Error -> {
                     binding.recyclerView.show()
                     binding.linearLayoutSearch.hide()
                     binding.progressBar.hide()
-                    movieSearchAdapter.setData(null, state.message)
+                    movieSearchAdapter.setData(listOf(UiModel.EmptyItem(state.message)))
                     showToast(state.message)
                 }
             }

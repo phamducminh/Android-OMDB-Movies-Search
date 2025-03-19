@@ -14,7 +14,7 @@ import com.pdminh.omdbmoviessearch.util.show
 class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val progressBar: ProgressBar = itemView.findViewById(R.id.progress_bar)
 
-    fun showLoadingView() {
+    fun bind() {
         progressBar.show()
     }
 
@@ -22,7 +22,7 @@ class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun create(parent: ViewGroup): LoadingViewHolder {
             val view = LayoutInflater
                 .from(parent.context)
-                .inflate(R.layout.list_item_loading, parent, false)
+                .inflate(R.layout.loading_view_item, parent, false)
             return LoadingViewHolder(view)
         }
     }
