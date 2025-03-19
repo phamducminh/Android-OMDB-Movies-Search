@@ -17,8 +17,7 @@ android {
         targetSdk 35
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.pdminh.omdbmoviessearch.MyCustomTestRunner"
     }
 
     buildTypes {
@@ -76,9 +75,17 @@ dependencies {
     debugImplementation libs.leakcanary.android
 
     testImplementation libs.junit
+    testImplementation libs.mockito.core
+    testImplementation libs.core.testing
     testImplementation libs.truth
     testImplementation libs.gson
 
-    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.test.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.core.ktx
     androidTestImplementation libs.androidx.espresso.core
+
+    // Hilt testing
+    androidTestImplementation libs.hilt.android.testing
+    kaptAndroidTest libs.hilt.android.compiler
 }
