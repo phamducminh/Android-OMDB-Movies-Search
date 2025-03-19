@@ -160,7 +160,7 @@ class MovieSearchActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(query: String): Boolean {
                 dismissKeyboard(searchView)
                 searchView.clearFocus()
-                viewModel.searchMovie(query)
+                viewModel.searchMovie(query.trim())
                 return true
             }
 
