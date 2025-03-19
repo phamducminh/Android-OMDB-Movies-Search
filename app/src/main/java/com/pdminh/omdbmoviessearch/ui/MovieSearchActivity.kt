@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pdminh.omdbmoviessearch.R
 import com.pdminh.omdbmoviessearch.databinding.ActivityMovieSearchBinding
 import com.pdminh.omdbmoviessearch.util.NetworkUtils
-import com.pdminh.omdbmoviessearch.util.State
+import com.pdminh.omdbmoviessearch.model.UiState
 import com.pdminh.omdbmoviessearch.util.dismissKeyboard
 import com.pdminh.omdbmoviessearch.util.getColorRes
 import com.pdminh.omdbmoviessearch.util.hide
@@ -106,7 +106,7 @@ class MovieSearchActivity : AppCompatActivity() {
                     setBackgroundColor(getColorRes(R.color.colorStatusNotConnected))
                 }
             } else {
-                if (viewModel.moviesLiveData.value is State.Error || movieSearchAdapter.itemCount == 0) {
+                if (viewModel.moviesLiveData.value is UiState.Error || movieSearchAdapter.itemCount == 0) {
                     viewModel.getMovies()
                 }
                 binding.textViewNetworkStatus.text = getString(R.string.text_connectivity)
@@ -130,20 +130,20 @@ class MovieSearchActivity : AppCompatActivity() {
     private fun setupAPICall() {
         viewModel.moviesLiveData.observe(this) { state ->
             when (state) {
-                is State.Loading -> {
+                is UiState.Loading -> {
                     binding.recyclerViewMovies.hide()
                     binding.linearLayoutSearch.hide()
                     binding.progressBar.show()
                 }
 
-                is State.Success -> {
+                is UiState.Success -> {
                     binding.recyclerViewMovies.show()
                     binding.linearLayoutSearch.hide()
                     binding.progressBar.hide()
                     movieSearchAdapter.setData(state.data)
                 }
 
-                is State.Error -> {
+                is UiState.Error -> {
                     binding.progressBar.hide()
                     showToast(state.message)
                 }

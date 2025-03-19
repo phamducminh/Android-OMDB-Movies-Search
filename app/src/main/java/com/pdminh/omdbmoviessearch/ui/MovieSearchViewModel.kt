@@ -10,7 +10,7 @@ import com.pdminh.omdbmoviessearch.model.MovieSearchResult
 import com.pdminh.omdbmoviessearch.util.ApiException
 import com.pdminh.omdbmoviessearch.util.AppConstants
 import com.pdminh.omdbmoviessearch.util.NoInternetException
-import com.pdminh.omdbmoviessearch.util.State
+import com.pdminh.omdbmoviessearch.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,8 +31,8 @@ class MovieSearchViewModel @Inject constructor(
     private var totalMovies = 0
     private var movieList = ArrayList<Movie?>()
 
-    private val _moviesLiveData = MutableLiveData<State<ArrayList<Movie?>>>()
-    val moviesLiveData: LiveData<State<ArrayList<Movie?>>>
+    private val _moviesLiveData = MutableLiveData<UiState<ArrayList<Movie?>>>()
+    val moviesLiveData: LiveData<UiState<ArrayList<Movie?>>>
         get() = _moviesLiveData
 
     private val _queryLiveData = MutableLiveData<String>()
@@ -53,7 +53,7 @@ class MovieSearchViewModel @Inject constructor(
     fun getMovies() {
         if (pageIndex == 1) {
             movieList.clear()
-            _moviesLiveData.postValue(State.loading())
+            _moviesLiveData.postValue(UiState.loading())
         } else {
             if (movieList.isNotEmpty() && movieList.last() == null)
                 movieList.removeAt(movieList.size - 1)
@@ -71,19 +71,19 @@ class MovieSearchViewModel @Inject constructor(
                             if (movieResponse.response == AppConstants.SUCCESS) {
                                 movieList.addAll(movieResponse.search)
                                 totalMovies = movieResponse.totalResults.toInt()
-                                _moviesLiveData.postValue(State.success(movieList))
+                                _moviesLiveData.postValue(UiState.success(movieList))
                                 _loadMoreListLiveData.value = false
                             } else
-                                _moviesLiveData.postValue(State.error(movieResponse.error))
+                                _moviesLiveData.postValue(UiState.error(movieResponse.error))
                         }
                     } catch (e: ApiException) {
                         withContext(Dispatchers.Main) {
-                            _moviesLiveData.postValue(State.error(e.message!!))
+                            _moviesLiveData.postValue(UiState.error(e.message!!))
                             _loadMoreListLiveData.value = false
                         }
                     } catch (e: NoInternetException) {
                         withContext(Dispatchers.Main) {
-                            _moviesLiveData.postValue(State.error(e.message!!))
+                            _moviesLiveData.postValue(UiState.error(e.message!!))
                             _loadMoreListLiveData.value = false
                         }
                     }
