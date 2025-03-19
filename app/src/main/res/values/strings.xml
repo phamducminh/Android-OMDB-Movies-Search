@@ -2,7 +2,7 @@
     <string name="app_name">OMDB Movies Search</string>
     <string name="text_no_connectivity">No Connection</string>
     <string name="text_connectivity">Back Online</string>
-    <string name="welcome_do_a_search">Welcome! Do a search</string>
+    <string name="search_welcome">Search your favourite movie</string>
     <string name="search">Search</string>
     <string name="click_me">Click me</string>
     <string name="no_movies_found">No movies found</string>
