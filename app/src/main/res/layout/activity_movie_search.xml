@@ -50,7 +50,7 @@
         android:id="@+id/linear_layout_search"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorWhite"
+        android:background="@color/md_theme_onSecondary"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/calibri"
             android:text="@string/welcome_do_a_search"
-            android:textColor="#000000"
+            android:textColor="@color/md_theme_onSurface_highContrast"
             android:textSize="24sp" />
     </LinearLayout>
 

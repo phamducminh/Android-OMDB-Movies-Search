@@ -22,7 +22,7 @@ class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun create(parent: ViewGroup): LoadingViewHolder {
             val view = LayoutInflater
                 .from(parent.context)
-                .inflate(R.layout.list_item_lazy_loading, parent, false)
+                .inflate(R.layout.list_item_loading, parent, false)
             return LoadingViewHolder(view)
         }
     }

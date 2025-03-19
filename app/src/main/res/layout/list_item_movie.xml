@@ -38,8 +38,8 @@
                     android:id="@+id/text_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="--"
-                    android:textColor="#000000"
+                    android:text="Home alone"
+                    android:textColor="@color/md_theme_onSurface_highContrast"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -47,7 +47,8 @@
                     android:id="@+id/text_year"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="--" />
+                    android:text="2025"
+                    android:textColor="@color/md_theme_onSurface_highContrast" />
 
             </LinearLayout>
 
