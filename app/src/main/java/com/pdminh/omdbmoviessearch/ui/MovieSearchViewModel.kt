@@ -50,7 +50,7 @@ class MovieSearchViewModel @Inject constructor(
     fun getMovies() {
         if (pageIndex == 1) {
             movieList.clear()
-            _moviesLiveData.postValue(UiState.loading())
+            _moviesLiveData.postValue(UiState.Loading)
         } else {
             if (movieList.isNotEmpty() && movieList.last() == null)
                 movieList.removeAt(movieList.size - 1)
@@ -67,19 +67,19 @@ class MovieSearchViewModel @Inject constructor(
                         if (movieResponse.response == AppConstants.SUCCESS) {
                             movieList.addAll(movieResponse.search)
                             totalMovies = movieResponse.totalResults.toInt()
-                            _moviesLiveData.postValue(UiState.success(movieList))
+                            _moviesLiveData.postValue(UiState.Success(movieList))
                             _loadMoreListLiveData.value = false
                         } else
-                            _moviesLiveData.postValue(UiState.error(movieResponse.error))
+                            _moviesLiveData.postValue(UiState.Error(movieResponse.error))
                     }
                 } catch (e: ApiException) {
                     withContext(Dispatchers.Main) {
-                        _moviesLiveData.postValue(UiState.error(e.message!!))
+                        _moviesLiveData.postValue(UiState.Error(e.message!!))
                         _loadMoreListLiveData.value = false
                     }
                 } catch (e: NoInternetException) {
                     withContext(Dispatchers.Main) {
-                        _moviesLiveData.postValue(UiState.error(e.message!!))
+                        _moviesLiveData.postValue(UiState.Error(e.message!!))
                         _loadMoreListLiveData.value = false
                     }
                 }

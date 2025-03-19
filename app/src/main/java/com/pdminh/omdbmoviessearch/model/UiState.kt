@@ -1,15 +1,10 @@
 package com.pdminh.omdbmoviessearch.model
 
-sealed class UiState<T> {
-    class Loading<T> : UiState<T>()
+sealed interface UiState<out T> {
 
-    data class Success<T>(val data: T) : UiState<T>()
+    data class Success<T>(val data: T) : UiState<T>
 
-    data class Error<T>(val message: String) : UiState<T>()
+    data class Error(val message: String) : UiState<Nothing>
 
-    companion object {
-        fun <T> loading() = Loading<T>()
-        fun <T> success(data: T) = Success(data)
-        fun <T> error(message: String) = Error<T>(message)
-    }
+    object Loading : UiState<Nothing>
 }
