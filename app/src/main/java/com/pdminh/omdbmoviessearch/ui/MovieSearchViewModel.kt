@@ -33,9 +33,9 @@ class MovieSearchViewModel(
     val moviesLiveData: LiveData<State<ArrayList<Movie?>>>
         get() = _moviesLiveData
 
-    private val _movieNameLiveData = MutableLiveData<String>()
-    val movieNameLiveData: LiveData<String>
-        get() = _movieNameLiveData
+    private val _queryLiveData = MutableLiveData<String>()
+    val queryLiveData: LiveData<String>
+        get() = _queryLiveData
 
     private val _loadMoreListLiveData = MutableLiveData<Boolean>()
     val loadMoreListLiveData: LiveData<Boolean>
@@ -45,7 +45,7 @@ class MovieSearchViewModel(
 
     init {
         _loadMoreListLiveData.value = false
-        _movieNameLiveData.value = ""
+        _queryLiveData.value = ""
     }
 
     fun getMovies() {
@@ -57,11 +57,11 @@ class MovieSearchViewModel(
                 movieList.removeAt(movieList.size - 1)
         }
         viewModelScope.launch(Dispatchers.IO) {
-            _movieNameLiveData.value?.let { movieName ->
+            _queryLiveData.value?.let { movieName ->
                 if (movieName.isNotEmpty()) {
                     try {
                         movieResponse = repository.getMovies(
-                            _movieNameLiveData.value!!,
+                            movieName,
                             AppConstants.API_KEY,
                             pageIndex
                         )
@@ -91,7 +91,7 @@ class MovieSearchViewModel(
     }
 
     fun searchMovie(query: String) {
-        _movieNameLiveData.value = query
+        _queryLiveData.value = query
         pageIndex = 1
         totalMovies = 0
         getMovies()

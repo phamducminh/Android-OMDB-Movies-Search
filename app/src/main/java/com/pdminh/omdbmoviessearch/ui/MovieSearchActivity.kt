@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.Menu
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,14 +25,18 @@ import com.pdminh.omdbmoviessearch.util.showToast
 
 class MovieSearchActivity : AppCompatActivity() {
 
-    private lateinit var dataBind: ActivityMovieSearchBinding
+    private lateinit var binding: ActivityMovieSearchBinding
     private lateinit var viewModel: MovieSearchViewModel
     private lateinit var movieSearchAdapter: MovieSearchAdapter
     private lateinit var searchView: SearchView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        dataBind = DataBindingUtil.setContentView(this, R.layout.activity_movie_search)
+
+        binding = ActivityMovieSearchBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
         setupViewModel()
         setupUI()
         initializeObserver()
@@ -64,7 +67,7 @@ class MovieSearchActivity : AppCompatActivity() {
     private fun setupUI() {
         movieSearchAdapter = MovieSearchAdapter()
 
-        dataBind.recyclerViewMovies.apply {
+        binding.recyclerViewMovies.apply {
             layoutManager = LinearLayoutManager(context)
             itemAnimator = DefaultItemAnimator()
             adapter = movieSearchAdapter
@@ -89,7 +92,7 @@ class MovieSearchActivity : AppCompatActivity() {
     }
 
     private fun initializeObserver() {
-        viewModel.movieNameLiveData.observe(this) { movieName ->
+        viewModel.queryLiveData.observe(this) { movieName ->
             Log.i("Info", "Movie Name = $movieName")
         }
         viewModel.loadMoreListLiveData.observe(this) { loadMore ->
@@ -105,8 +108,8 @@ class MovieSearchActivity : AppCompatActivity() {
     private fun handleNetworkChanges() {
         NetworkUtils.getNetworkLiveData(applicationContext).observe(this) { isConnected ->
             if (!isConnected) {
-                dataBind.textViewNetworkStatus.text = getString(R.string.text_no_connectivity)
-                dataBind.networkStatusLayout.apply {
+                binding.textViewNetworkStatus.text = getString(R.string.text_no_connectivity)
+                binding.networkStatusLayout.apply {
                     show()
                     setBackgroundColor(getColorRes(R.color.colorStatusNotConnected))
                 }
@@ -114,8 +117,8 @@ class MovieSearchActivity : AppCompatActivity() {
                 if (viewModel.moviesLiveData.value is State.Error || movieSearchAdapter.itemCount == 0) {
                     viewModel.getMovies()
                 }
-                dataBind.textViewNetworkStatus.text = getString(R.string.text_connectivity)
-                dataBind.networkStatusLayout.apply {
+                binding.textViewNetworkStatus.text = getString(R.string.text_connectivity)
+                binding.networkStatusLayout.apply {
                     setBackgroundColor(getColorRes(R.color.colorStatusConnected))
 
                     animate()
@@ -136,20 +139,20 @@ class MovieSearchActivity : AppCompatActivity() {
         viewModel.moviesLiveData.observe(this) { state ->
             when (state) {
                 is State.Loading -> {
-                    dataBind.recyclerViewMovies.hide()
-                    dataBind.linearLayoutSearch.hide()
-                    dataBind.progressBar.show()
+                    binding.recyclerViewMovies.hide()
+                    binding.linearLayoutSearch.hide()
+                    binding.progressBar.show()
                 }
 
                 is State.Success -> {
-                    dataBind.recyclerViewMovies.show()
-                    dataBind.linearLayoutSearch.hide()
-                    dataBind.progressBar.hide()
+                    binding.recyclerViewMovies.show()
+                    binding.linearLayoutSearch.hide()
+                    binding.progressBar.hide()
                     movieSearchAdapter.setData(state.data)
                 }
 
                 is State.Error -> {
-                    dataBind.progressBar.hide()
+                    binding.progressBar.hide()
                     showToast(state.message)
                 }
             }
