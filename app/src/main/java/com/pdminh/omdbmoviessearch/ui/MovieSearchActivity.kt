@@ -7,12 +7,11 @@ import android.os.Handler
 import android.util.Log
 import android.view.Menu
 import android.widget.SearchView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.pdminh.omdbmoviessearch.Injection
 import com.pdminh.omdbmoviessearch.R
 import com.pdminh.omdbmoviessearch.databinding.ActivityMovieSearchBinding
 import com.pdminh.omdbmoviessearch.util.NetworkUtils
@@ -22,12 +21,16 @@ import com.pdminh.omdbmoviessearch.util.getColorRes
 import com.pdminh.omdbmoviessearch.util.hide
 import com.pdminh.omdbmoviessearch.util.show
 import com.pdminh.omdbmoviessearch.util.showToast
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MovieSearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMovieSearchBinding
-    private lateinit var viewModel: MovieSearchViewModel
-    private lateinit var movieSearchAdapter: MovieSearchAdapter
+    private val viewModel: MovieSearchViewModel by viewModels()
+    @Inject
+    lateinit var movieSearchAdapter: MovieSearchAdapter
     private lateinit var searchView: SearchView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +40,6 @@ class MovieSearchActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        setupViewModel()
         setupUI()
         initializeObserver()
         handleNetworkChanges()
@@ -56,17 +58,7 @@ class MovieSearchActivity : AppCompatActivity() {
         return true
     }
 
-    private fun setupViewModel() {
-        viewModel = ViewModelProvider(
-            owner = this,
-            factory = Injection.provideViewModelFactory(context = this, owner = this)
-        )
-            .get(MovieSearchViewModel::class.java)
-    }
-
     private fun setupUI() {
-        movieSearchAdapter = MovieSearchAdapter()
-
         binding.recyclerViewMovies.apply {
             layoutManager = LinearLayoutManager(context)
             itemAnimator = DefaultItemAnimator()

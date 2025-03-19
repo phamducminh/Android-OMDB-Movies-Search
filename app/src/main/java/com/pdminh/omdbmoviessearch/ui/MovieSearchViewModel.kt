@@ -2,7 +2,6 @@ package com.pdminh.omdbmoviessearch.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pdminh.omdbmoviessearch.data.MovieSearchRepository
@@ -12,17 +11,20 @@ import com.pdminh.omdbmoviessearch.util.ApiException
 import com.pdminh.omdbmoviessearch.util.AppConstants
 import com.pdminh.omdbmoviessearch.util.NoInternetException
 import com.pdminh.omdbmoviessearch.util.State
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 /**
  * ViewModel for the [MovieSearchActivity] screen.
  * The ViewModel works with the [MovieSearchRepository] to get the data.
  */
-class MovieSearchViewModel(
+@HiltViewModel
+class MovieSearchViewModel @Inject constructor(
     private val repository: MovieSearchRepository,
-    private val savedStateHandle: SavedStateHandle
+    /*private val savedStateHandle: SavedStateHandle*/
 ) : ViewModel() {
 
     private var pageIndex = 0

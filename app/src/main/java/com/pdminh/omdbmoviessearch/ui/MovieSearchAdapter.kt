@@ -3,11 +3,12 @@ package com.pdminh.omdbmoviessearch.ui
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.pdminh.omdbmoviessearch.model.Movie
+import javax.inject.Inject
 
 /**
  * Adapter for the list of repositories.
  */
-class MovieSearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MovieSearchAdapter @Inject constructor() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var movies = ArrayList<Movie?>()
 
