@@ -1,4 +1,4 @@
-package com.pdminh.omdbmoviessearch.ui
+package com.pdminh.omdbmoviessearch.ui.viewholder
 
 import android.view.LayoutInflater
 import android.view.View

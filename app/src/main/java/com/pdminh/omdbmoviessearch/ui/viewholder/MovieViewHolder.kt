@@ -1,4 +1,4 @@
-package com.pdminh.omdbmoviessearch.ui
+package com.pdminh.omdbmoviessearch.ui.viewholder
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -14,7 +14,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.pdminh.omdbmoviessearch.R
 import com.pdminh.omdbmoviessearch.model.Movie
-import androidx.core.view.isGone
 
 /**
  * View Holder for a [Movie] RecyclerView list item.

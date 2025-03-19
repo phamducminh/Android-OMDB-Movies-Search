@@ -115,7 +115,10 @@ class MovieSearchActivity : AppCompatActivity() {
                 }
 
                 is UiState.Error -> {
+                    binding.recyclerView.show()
+                    binding.linearLayoutSearch.hide()
                     binding.progressBar.hide()
+                    movieSearchAdapter.setData(null, state.message)
                     showToast(state.message)
                 }
             }
